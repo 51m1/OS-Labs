@@ -17,6 +17,7 @@
 //#define NUM_THREADS 5
 
 /* the thread runs in this function */
+
 void *runner(void *param); 
 
 main(int argc, char *argv[])
@@ -25,6 +26,7 @@ main(int argc, char *argv[])
 	printf("Param = %d\n",param);
 	int NUM_THREADS = param;
 	int i, o, scope;
+	int par[2];
 	pthread_t tid[NUM_THREADS]; 	/* the thread identifier */
 	pthread_attr_t attr; 		/* set of attributes for the thread */
 
@@ -51,8 +53,10 @@ main(int argc, char *argv[])
 	for (i = 0; i < NUM_THREADS; i++)
 	{
 		o = i+4;
+		par[0] = i;
+		par[1] = o;
 		printf("I am thread 1. Coreated new thread (%d) in iteration %d...\n",o,i);
-		pthread_create(&tid[i],&attr,runner,/*NULL*/(void *)o); 
+		pthread_create(&tid[i],&attr,runner,/*NULL*//*(void *)o*/(void *)par); 
 	}
 	/**
 	 * Now join on each thread
@@ -67,9 +71,17 @@ main(int argc, char *argv[])
 void *runner(void *param) 
 {
 	/* do some work ... */
+	int *tid1;
+	int t1,t2;
+	tid1 = (int *)param;	
+	t1 = tid1[0];
+	t2 = tid1[1];
+
+	//printf("First value for tid %ld\n",(int)param);
+
 	long tid;
 	tid = (long)param;
-	printf("Wello Horld! Itsa me, Mar...thread:#%ld !\n",tid);
+	printf("Hello from thread #%d - I was created in iteration %d\n",t1,t2);
 
 	pthread_exit(0);
 }
