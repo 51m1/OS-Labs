@@ -56,7 +56,11 @@ main(int argc, char *argv[])
 		par[0] = i;
 		par[1] = o;
 		printf("I am thread 1. Coreated new thread (%d) in iteration %d...\n",o,i);
-		pthread_create(&tid[i],&attr,runner,/*NULL*//*(void *)o*/(void *)par); 
+		pthread_create(&tid[i],&attr,runner,/*NULL*//*(void *)o*/(void *)par);
+		if(!(i%4))
+		{
+			sleep(1);
+		}
 	}
 	/**
 	 * Now join on each thread
