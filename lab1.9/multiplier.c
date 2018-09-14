@@ -4,3 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
+long* readMatrix
+
+int main(void)
+{
+	
+}
