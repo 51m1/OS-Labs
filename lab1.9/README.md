@@ -1,4 +1,3 @@
 # OS-Labs
 
-For this lab we simulated a couple of treads being created and executed, in order to toy around and see a live examle of the way the machine's scheduling logic works.
-In order to compile, a variation of the standard command must be used: "gcc posix-sched.c -o posix-sched -lpthread".
+For this lab we created a program able to get the product of to matrixes using threads to make the operation faster. When compiling the command "gcc multiplier.c -o multiplier.o -l pthread" must be used, and when running the number of desired buffers must be specified next to the main command "./multiplier.o 2". Verify that the desired .dat files are located within the same direcory as the code when attempting to run.
