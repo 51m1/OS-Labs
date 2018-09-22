@@ -6,6 +6,7 @@
 #include <time.h>
 
 //  https://www.programmingsimplified.com/c-program-multiply-matrices
+//  https://www.geeksforgeeks.org/multiplication-matrix-using-pthreads
 
 #define colz 3
 #define rowz 3
@@ -25,6 +26,7 @@ int NUM_BUFFERS;
 long **buffers;
 pthread_mutex_t *mutexes;
 pthread_t threads[colz] = {0};
+pthread_t threadid[colz] = {0};
 long* result;
 long *matA;
 long *matB;
@@ -147,14 +149,14 @@ long* multiply(long *matA, long *matB)
 	printf("test1\n");
 	for(i = 0; i < colz; i++)
 	{
-		pthread_create(&threads[i], &attr, mult_run, (void*) i);
+		pthread_create(&threadid[i], &attr, mult_run, (void*)&threads[i]);
 		printf("test2\n");
 	}
 	printf("test3\n");
 	for(i = 0; i < colz; i++)
 	{
 		printf("test4\n");
-		pthread_join(threads[i], NULL);
+		pthread_join(threadid[i], NULL);
 		printf("test5\n");
 	}
 	return result;
