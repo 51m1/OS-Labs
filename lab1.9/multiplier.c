@@ -25,7 +25,6 @@ void* mult_run(void *param);
 int NUM_BUFFERS;
 long **buffers;
 pthread_mutex_t *mutexes;
-pthread_t threads[colz] = {0};
 pthread_t threadid[colz] = {0};
 long* result;
 long *matA;
@@ -38,9 +37,11 @@ int main(int argc, char *argv[])
 	NUM_BUFFERS = atoi(argv[1]);
 	buffers = malloc(NUM_BUFFERS*colz*sizeof(long));
 	//printf("check1\n");
+	//pthread_mutex_init(mutexes,NULL);
 	matA = readMatrix("testA.dat");
 	matB = readMatrix("testB.dat");
-	
+	//saveResultMatrix(matA);
+
 	multiply(matA, matB);
 
 	/*
@@ -122,10 +123,13 @@ long dotProduct(long *vec1, long *vec2)
 int getLock()
 {
 	int i;
+	printf("testchang\n");
 	for(i = 0; i<NUM_BUFFERS; i++)
 	{
-		if(pthread_mutex_trylock(&mutexes[i]))
+	printf("testling\n");
+		if(pthread_mutex_trylock(&mutexes[i])==0)
 		{
+			printf("testwong\n");
 			return i;
 		}
 	}
@@ -149,8 +153,9 @@ long* multiply(long *matA, long *matB)
 	printf("test1\n");
 	for(i = 0; i < colz; i++)
 	{
-		pthread_create(&threadid[i], &attr, mult_run, (void*)&threads[i]);
+		pthread_create(&threadid[i], &attr, mult_run, &i);
 		printf("test2\n");
+		printf("Created thread %d\n",i);
 	}
 	printf("test3\n");
 	for(i = 0; i < colz; i++)
@@ -164,20 +169,32 @@ long* multiply(long *matA, long *matB)
 
 int saveResultMatrix(long *result)
 {
-
+	int i;
+	FILE *out = fopen("result.dat","w");
+	for(i = 0; i < totz; i++)
+	{
+		fprintf(out,"%ld\n",result[i]);
+	}
+	fclose(out);
+	return 0;
 }
 
 void* mult_run(void *param)
 {
+	printf("test6\n");
 	int bi;
 	long i;
-	while(getLock()==-1);
-	bi = getLock();
+	while(bi = getLock()==-1);
+	printf("test7\n");
 	for(i = 0; i < colz; i++)
 	{
+		printf("test8\n");
 		buffers[bi][i] = dotProduct(getRow((int)param,matA),getColumn(i,matB));
+		printf("test9\n");
 		if((long)param == i) printf("col: %ld  %ld\n", (long)param, buffers[bi][i]);
+		printf("test10\n");
 	}
+	printf("test11\n");
 	for(i = 0; i < colz; i++)
 	{
 		result[(int)param*rowz+i] = buffers[bi][i];
