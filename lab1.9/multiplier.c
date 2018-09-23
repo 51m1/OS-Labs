@@ -26,7 +26,7 @@ int NUM_BUFFERS;
 long **buffers;
 pthread_mutex_t *mutexes;
 pthread_t threadid[colz] = {0};
-long* result;
+long *result;
 long *matA;
 long *matB;
 long *col;
@@ -35,14 +35,24 @@ long *row;
 int main(int argc, char *argv[])
 {
 	NUM_BUFFERS = atoi(argv[1]);
-	buffers = malloc(NUM_BUFFERS*colz*sizeof(long));
+	int x;
+	buffers = malloc(NUM_BUFFERS*sizeof(long));
+	for(x = 0; x<NUM_BUFFERS; x++)
+	{
+		buffers[x] = malloc(colz*sizeof(long));
+	}
+	mutexes = malloc(NUM_BUFFERS*sizeof(pthread_mutex_t));
+	result = malloc(totz*sizeof(long));
 	//printf("check1\n");
-	//pthread_mutex_init(mutexes,NULL);
 	matA = readMatrix("testA.dat");
 	matB = readMatrix("testB.dat");
 	//saveResultMatrix(matA);
+	//printf("Result: %ld\n",dotProduct(getRow(1,matA),getColumn(1,matB)));
+	//printf("Result: %ld\n",dotProduct(getRow(1,matA),getColumn(2,matB)));
+	//printf("Result: %ld\n",dotProduct(getRow(1,matA),getColumn(3,matB)));	
 
 	multiply(matA, matB);
+	saveResultMatrix(result);
 
 	/*
 	int ack;
@@ -123,13 +133,13 @@ long dotProduct(long *vec1, long *vec2)
 int getLock()
 {
 	int i;
-	printf("testchang\n");
+	printf("Entered getlock()\n");
 	for(i = 0; i<NUM_BUFFERS; i++)
 	{
-	printf("testling\n");
+	printf("test for lock in buffer %d\n",i);
 		if(pthread_mutex_trylock(&mutexes[i])==0)
 		{
-			printf("testwong\n");
+			printf("Assigned lock %d\n",i);
 			return i;
 		}
 	}
@@ -137,7 +147,8 @@ int getLock()
 }
 
 int releaseLock(int lock)
-{
+{	
+	printf("Released lock: %d\n",lock);
 	if(pthread_mutex_unlock(&mutexes[lock]))
 	{
 		return 0;
@@ -153,7 +164,7 @@ long* multiply(long *matA, long *matB)
 	printf("test1\n");
 	for(i = 0; i < colz; i++)
 	{
-		pthread_create(&threadid[i], &attr, mult_run, &i);
+		pthread_create(&threadid[i], &attr, mult_run, (void*)i);
 		printf("test2\n");
 		printf("Created thread %d\n",i);
 	}
@@ -169,7 +180,7 @@ long* multiply(long *matA, long *matB)
 
 int saveResultMatrix(long *result)
 {
-	int i;
+	long i;
 	FILE *out = fopen("result.dat","w");
 	for(i = 0; i < totz; i++)
 	{
@@ -181,24 +192,30 @@ int saveResultMatrix(long *result)
 
 void* mult_run(void *param)
 {
-	printf("test6\n");
+	printf("Started with thread run\n");
 	int bi;
 	long i;
+	printf("Request a buffer/lock\n");
 	while(bi = getLock()==-1);
-	printf("test7\n");
+	printf("Lock successfull with lock %d\n",bi);
+	for(i = 1; i <= colz; i++)
+	{
+		printf("Begin multiplication with counter %ld and param %d\n",i, 			(int)param);
+		buffers[bi][i-1] = dotProduct(getRow((int)param+1,matA),getColumn(i,matB));
+		printf("Multiplication compleated, result: %ld\n",dotProduct(getRow	 			((int)param+1,matA),getColumn(i,matB)));
+		printf("Multiplication saved, result: %ld\n",buffers[bi][i-1]);
+	}
+	printf("test11 totz = %d\n", totz);
+	//memcpy(&result[(int)param*colz], &buffers[bi],colz*sizeof(long));
+	
 	for(i = 0; i < colz; i++)
 	{
-		printf("test8\n");
-		buffers[bi][i] = dotProduct(getRow((int)param,matA),getColumn(i,matB));
-		printf("test9\n");
-		if((long)param == i) printf("col: %ld  %ld\n", (long)param, buffers[bi][i]);
-		printf("test10\n");
+		printf("test12 param= %d i= %ld\n", (int)param),i;
+		result[(int)param*colz+i] = buffers[bi][i];
+		printf("Wrote %ld in result from buffers %ld\n",result[(int)param*colz  		+i],buffers[bi][i]);
 	}
-	printf("test11\n");
-	for(i = 0; i < colz; i++)
-	{
-		result[(int)param*rowz+i] = buffers[bi][i];
-	}
+	
+	printf("Finished operations in thread %d\n",(int)param);
 	releaseLock(bi);
 	pthread_exit(0);
 }
