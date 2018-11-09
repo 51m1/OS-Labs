@@ -68,6 +68,12 @@ int main(void)
 	padd=0;
 	readbin();
 	getNum("/home/oscreader/Desktop/OS-Labs/lab5.2/addresses.txt");
+
+	int i;
+	for(i = 0; i<cant; i++)
+	{
+		printf("In pos %d stored value is %d\n",i,getfrombs(i));
+	}
 	
 	for(index0 = 0; index0 < cant; index0++)
 	{
@@ -120,6 +126,8 @@ int main(void)
 		padd = (index0 << 8) + (vadd & 0b11111111);
 		printf("Physical address: %d Value: %d\n", padd, fismem[padd]);
 	}
+	
+	printf("Output in address 758 in fm = %c", fismem[758]);
 
 }
 
