@@ -8,8 +8,8 @@
 //  https://www.programmingsimplified.com/c-program-multiply-matrices
 //  https://www.geeksforgeeks.org/multiplication-matrix-using-pthreads
 
-#define colz 3
-#define rowz 3
+#define colz 4
+#define rowz 4
 #define totz colz*rowz
 
 long* readMatrix(char *filename);
