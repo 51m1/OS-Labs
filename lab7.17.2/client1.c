@@ -7,13 +7,20 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-int main()
+typedef struct{
+	char op;
+	int size;
+	int val[10];
+} item;
+
+int main(int argc, char *argv[])
 {
     int sockfd;
-    int len;
+    int len,i;
     struct sockaddr_un address;
     int result;
-    char ch = 'A';
+    long ans = 0;
+    item item;
 
 /*  Create a socket for the client.  */
 
@@ -36,9 +43,23 @@ int main()
 
 /*  We can now read/write via sockfd.  */
 
-    write(sockfd, &ch, 1);
-    read(sockfd, &ch, 1);
-    printf("Client: char from server = %c\n", ch);
+    item.op = *argv[1];
+    item.size = argc-2;
+    for(i=2;i<argc;i++)
+    {
+	item.val[i-2] = atoi(argv[i]);
+    }
+
+    write(sockfd, &item, sizeof(item));
+    read(sockfd, &item, sizeof(long));
+    if(ans=-99999)
+    {
+	printf("Unsupported operation\n");
+    }
+    else
+    {
+	printf("Client: answer from server = %ld\n", ans);
+    }
     close(sockfd);
     exit(0);
 }

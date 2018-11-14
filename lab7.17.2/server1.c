@@ -7,6 +7,45 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+typedef struct{
+	char op;
+	int size;
+	int val[10];
+} item;
+
+int sum(int val[], int size)
+{
+    int i;
+    int tmp = 0;
+    for(i = 0;i<size;i++)
+    {
+	tmp = tmp + val[i];
+    }
+    return tmp;
+}
+
+int res(int val[], int size)
+{
+    int i;
+    int tmp = val[0];
+    for(i = 1;i<size;i++)
+    {
+	tmp = tmp - val[i];
+    }
+    return tmp;
+}
+
+int mul(int val[], int size)
+{
+    int i;
+    int tmp = 1;
+    for(i = 0;i<size;i++)
+    {
+	tmp = tmp*val[i];
+    }
+    return tmp;
+}
+
 int main()
 {
     int server_sockfd, client_sockfd;
@@ -30,7 +69,9 @@ int main()
 
     listen(server_sockfd, 5);
     while(1) {
-        char ch;
+	int i;
+	long ans = 0;
+	item item;
 
         printf("server waiting\n");
 
@@ -42,10 +83,27 @@ int main()
 
 /*  We can now read/write to client on client_sockfd.  */
 
-        read(client_sockfd, &ch, 1);
-        printf("Server: Recived from client: %c \n",ch);
-	ch++;
-        write(client_sockfd, &ch, 1);
+        read(client_sockfd, &item, sizeof(item));
+
+	if(item.op == 's')
+	{
+		ans = sum(item.val,item.size);
+	}
+	else if(item.op == 'r')
+	{
+		ans = res(item.val,item.size);
+	}
+	else if(item.op == 'm')
+	{
+		ans = mul(item.val,item.size);
+	}
+	else
+	{
+		ans = -99999;
+	}
+
+        printf("Server: answer = %ld\n",ans);
+        write(client_sockfd, &ans, sizeof(long));
         close(client_sockfd);
     }
 }
