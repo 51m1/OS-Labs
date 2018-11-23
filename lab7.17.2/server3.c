@@ -42,8 +42,9 @@ int main()
 	char fecha[40];
 	
 	courtime = time (NULL);
-	loctime = localtime (&courtime);        
-	strftime(fecha,40,"%A %B %d\n",loctime);
+	loctime = localtime(&courtime); 
+	//fputs(asctime(loctime),stdout);       
+	strftime(fecha,40,"%A %B %d %I:%M %p.\n",loctime);
 	printf("Fecha por mandar: %s", fecha);
         printf("server waiting\n");
 	
